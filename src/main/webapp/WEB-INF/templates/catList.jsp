@@ -5,6 +5,8 @@
     <title>Katzendatenbank</title>
 </head>
 <body>
+<h2 align="center">Katzen in der Datenbank </h2>
+<hr>
 <table>
     <thead>
     <tr>
@@ -32,5 +34,6 @@
     </c:forEach>
     </tbody>
 </table>
+<a href="index">zurück</a><br>
 </body>
 </html>

@@ -60,9 +60,13 @@ public class CatViewController {
         Boolean chubbyBoolean = chubby.equals("true");
         System.out.println("chubby ist" + chubbyBoolean);
         Boolean sweetBoolean = sweet.equals("true");
-        System.out.println(name+ageInt+vaccineDate+weightFloat+chubbyBoolean+sweetBoolean);
+        Cat lastCat= catService.getCat(catService.getCatlist().size()-1);
+        if (lastCat.getName().equals(name) && lastCat.getWeight().equals(weightFloat) &&
+                lastCat.getVaccineDate().equals(vaccineDate) && lastCat.getAge().equals(ageInt))
+        {return "createCatError";}
         Cat newCat = new Cat(0, name, ageInt, vaccineDate, weightFloat, chubbyBoolean, sweetBoolean);
         catService.saveCat(newCat);
+
 
         model.addAttribute("catName", name);
         return "createCat";
