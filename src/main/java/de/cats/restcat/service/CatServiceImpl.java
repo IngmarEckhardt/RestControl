@@ -1,14 +1,12 @@
 package de.cats.restcat.service;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class CatServiceImpl implements CatService {
 
     private final CatRepoService catRepoService;
-    private final ArrayList<Cat> catArray;
+    private ArrayList<Cat> catArray;
     private ArrayList<Cat> filteredList;
 
     public CatServiceImpl(CatRepoService catRepoService) {
@@ -18,13 +16,11 @@ public class CatServiceImpl implements CatService {
     }
 
     @Override
-    @Cacheable(cacheNames = "cats")
     public Cat getCat(Integer id) {
         return filterCatOutOfArrayWithID(id).get(0);
     }
 
     @Override
-    @CacheEvict(cacheNames = "cats")
     public ArrayList<Cat> saveCat(Cat cat) {
         if (cat == null) {
             return null;
@@ -40,12 +36,12 @@ public class CatServiceImpl implements CatService {
             catArray.clear();
             catArray.addAll(filteredList);
         }
+        System.out.println("Nach dem Abspeichern der Katze enthält die Catlist im CatService" + catArray.stream().toString());
         return catArray;
     }
 
 
     @Override
-    @CacheEvict(cacheNames = "cats")
     public ArrayList<Cat> deleteCat(Cat cat) {
         catRepoService.deleteCat(cat);
         filteredList = filterCatOutOfArray(cat);
@@ -56,7 +52,6 @@ public class CatServiceImpl implements CatService {
 
 
     @Override
-    @CacheEvict(cacheNames = "cats")
     public ArrayList<Cat> deleteCatWithID(Integer id) {
         Cat cat = filterCatOutOfArrayWithID(id).get(0);
 
@@ -64,7 +59,6 @@ public class CatServiceImpl implements CatService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "cats")
     public ArrayList<Cat> findAll(String stringFilter) {
         ArrayList<Cat> catList = new ArrayList<>();
 
@@ -78,13 +72,13 @@ public class CatServiceImpl implements CatService {
     }
 
     @Override
-    @Cacheable(cacheNames = "cats")
+
     public ArrayList<Cat> getCatlist() {
+        catArray = catRepoService.readCats();
         return catArray;
     }
 
     @Override
-    @Cacheable(cacheNames = "cats")
     public ArrayList<Cat> setNewCatList(ArrayList<Cat> newCatlist) {
         catRepoService.replaceCatlist(newCatlist);
         catArray.clear();
@@ -92,16 +86,14 @@ public class CatServiceImpl implements CatService {
         return catArray;
     }
 
-    @CacheEvict(cacheNames = "cats")
     private ArrayList<Cat> filterCatOutOfArray(Cat cat) {
         return (ArrayList<Cat>) catArray.stream()
-                .filter(myCat -> !(myCat.getId() == cat.getId()))
+                .filter(myCat -> !(myCat.getId().equals(cat.getId())))
                 .collect(Collectors.toList());
     }
-    @CacheEvict(cacheNames = "cats")
     private ArrayList<Cat> filterCatOutOfArrayWithID(Integer id) {
         return (ArrayList<Cat>) catArray.stream()
-                .filter(myCat -> myCat.getId() == id)
+                .filter(myCat -> myCat.getId().equals(id))
                 .collect(Collectors.toList());
     }
 }

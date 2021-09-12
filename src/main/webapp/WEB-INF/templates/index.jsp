@@ -5,14 +5,14 @@
     <title>JSP - Hello World</title>
 </head>
 <body>
-<h1 align="center">CatControl - gibt dir die Kontrolle zurück!</h1>
+<h1 align="center">Katzenverwaltung</h1>
 <hr>
 <br>
 <br>
 <div align="center">
-<a href="Catlist">Katzendatenbank</a>
+<a href="catList">Katzendatenbank</a>
 <a href="formNewCat">Neue Katze hinzufügen</a>
-<a href="HelpAndSupport">Hilfe</a>
+<a href="helpAndSupport">Hilfe</a>
 </div>
 <br/>
 </body>

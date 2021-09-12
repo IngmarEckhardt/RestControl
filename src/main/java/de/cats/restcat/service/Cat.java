@@ -68,4 +68,12 @@ public class Cat {
     public Boolean isSweet() {
         return sweet;
     }
+
+    public String getChubby() {
+        return chubby ? "true" : "false";
+    }
+
+    public String getSweet() {
+        return sweet ? "true" : "false";
+    }
 }

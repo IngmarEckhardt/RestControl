@@ -10,8 +10,8 @@
 <br>
 <br>
 <div align="center">
-    <a href="mvc/index">Katzendatenbank</a>
-    <a href="mvc/restApiHelp">Hilfe für REST-Api</a>
+    <a href="mvc/index">Katzendatenbank</a><br>
+    <a href="mvc/restApiHelp">Hilfe für REST-Api</a><br><br><br>
     <a href="mvc/helpAndSupport">Impressum</a>
 </div>
 <br/>

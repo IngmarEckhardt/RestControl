@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 
 @RestController
@@ -27,7 +26,7 @@ public class CatRestController {
     }
 
     @PostMapping(value = "/Cat", produces = "application/json; charset=utf-8")
-    public ResponseEntity postController(
+    public ResponseEntity postCat(
             @RequestBody Cat cat) {
         catService.saveCat(cat);
         return ResponseEntity.ok(HttpStatus.OK);

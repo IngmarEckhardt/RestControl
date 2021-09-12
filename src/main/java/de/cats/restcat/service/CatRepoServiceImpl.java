@@ -32,6 +32,7 @@ class CatRepoServiceImpl implements de.cats.restcat.service.CatRepoService {
         if (catArray == null) catArray = catCache;
         if (catArray == null) return null;
 
+        System.out.println("Vor getCatliste enthält im CatRepoService" + catArray.size());
         backupRepo.writeCats(catArray);
         catCache = catArray;
         return catCache;
