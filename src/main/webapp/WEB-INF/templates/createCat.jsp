@@ -4,8 +4,8 @@
     <title>Cat Creation</title>
 </head>
 <body>
-<h1>Katze wurde gespeichert</h1>
-Die Katze ${catName}
+<h2>Katze wurde gespeichert</h2>
+Die Katze ${catName} wurde gespeichert.
 
 </body>
 </html>
