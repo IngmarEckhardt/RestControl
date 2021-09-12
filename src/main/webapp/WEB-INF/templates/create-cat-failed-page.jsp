@@ -4,7 +4,7 @@
 
 </head>
 <body>
-Die Katze ist bereits in der Datenbank vorhanden.
+${Message}
 <br><br>
 <a href="index">zurück</a><br>
 

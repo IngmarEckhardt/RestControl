@@ -10,8 +10,8 @@
 <br>
 <br>
 <div align="center">
-<a href="catList">Katzendatenbank</a>
-<a href="formNewCat">Neue Katze hinzufügen</a>
+<a href="catlist">Katzendatenbank</a>
+<a href="form-new-cat">Neue Katze hinzufügen</a>
 <a href="helpAndSupport">Hilfe</a>
 </div>
 <br/>

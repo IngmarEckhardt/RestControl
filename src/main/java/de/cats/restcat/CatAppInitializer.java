@@ -7,12 +7,12 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
 public class CatAppInitializer implements WebApplicationInitializer {
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
 
@@ -22,10 +22,8 @@ public class CatAppInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(webApplicationContext));
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet(webApplicationContext);
-
         ServletRegistration.Dynamic catDispatcherServlet =
                 servletContext.addServlet("catDispatcherServlet", dispatcherServlet);
-
         catDispatcherServlet.setLoadOnStartup(1);
         catDispatcherServlet.addMapping("/");
     }

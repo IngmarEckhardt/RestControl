@@ -8,8 +8,10 @@
 <h2 align="center">Füge eine neue Katze hinzu</h2>
 <h5>Wenn du Werte nicht kennst, lass das Eingabefeld frei.</h5>
 
-<form action="createCat">
+<form action="create-cat">
+    <input type="hidden" name="id" value="0">
     <div>
+
         <label for="name">Name der Katze: </label>
         <input type="text" name="name" placeholder="Max Musterkatz" id="name">
         <br><br>
@@ -49,7 +51,8 @@
             <label for="sweetFalse">falsch</label>
         </div>
         <br>
-        <input type="submit" value="Speichern"> <a href="index">zurück</a><br>
+
+          <input type="submit" value="Speichern"> <a href="index">zurück</a><br>
 
     </div>
 </form>

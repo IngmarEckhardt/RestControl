@@ -7,16 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
 @Controller
 public class CatViewController {
+    static CatDTO lastCatDTO;
 
     private CatService catService;
 
@@ -30,51 +24,41 @@ public class CatViewController {
         return "index";
     }
 
-    @RequestMapping("mvc/formNewCat")
+    @RequestMapping("mvc/form-new-cat")
     String formNewCatPage() {
 
-        return "formNewCat";
+        return "new-cat-form-page";
     }
 
-    @GetMapping("mvc/catList")
+    @GetMapping("mvc/catlist")
     public String viewCats(Model model) {
         model.addAttribute("cats", catService.getCatlist());
-        return "catList";
+        return "catlist-page";
     }
 
-    @RequestMapping("mvc/createCat")
-    String createCatPage(@RequestParam String name, @RequestParam String age, @RequestParam String date,
-                         @RequestParam String weight, @RequestParam String chubby, @RequestParam String sweet,
-                         Model model) throws ParseException {
-
-        Integer ageInt = Integer.parseInt(age);
-        System.out.println("das Alter ist" + ageInt);
-        Date dateSimpleDate = new SimpleDateFormat("yyyy-MM-dd").
-                parse(date);
-        System.out.println("Das date ist" + dateSimpleDate);
-        LocalDate vaccineDate = dateSimpleDate.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-        Float weightFloat = Float.parseFloat(weight);
-        System.out.println("Das Weight ist" + weightFloat);
-        Boolean chubbyBoolean = chubby.equals("true");
-        System.out.println("chubby ist" + chubbyBoolean);
-        Boolean sweetBoolean = sweet.equals("true");
-        Cat lastCat= catService.getCat(catService.getCatlist().size()-1);
-        if (lastCat.getName().equals(name) && lastCat.getWeight().equals(weightFloat) &&
-                lastCat.getVaccineDate().equals(vaccineDate) && lastCat.getAge().equals(ageInt))
-        {return "createCatError";}
-        Cat newCat = new Cat(0, name, ageInt, vaccineDate, weightFloat, chubbyBoolean, sweetBoolean);
-        catService.saveCat(newCat);
-
-
-        model.addAttribute("catName", name);
-        return "createCat";
-    }
-
-    @RequestMapping("mvc/restApiHelp")
+    @RequestMapping("mvc/rest-api-help")
     String restApiHelpPage() {
 
-        return "restApiHelp";
+        return "rest-api-help-page";
+    }
+
+    @RequestMapping("mvc/create-cat")
+    String createCatPage(CatDTO catDTO,
+                         Model model) {
+        if((lastCatDTO!=null)&&lastCatDTO.equals(catDTO)) {
+            model.addAttribute("message", "Die Katze wurde schon gespeichert");
+            return "create-cat-failed-page";
+        }
+        lastCatDTO = catDTO;
+        Cat newCat = catDTO.getCat();
+        if (newCat == null) {
+            model.addAttribute("message", "Die Daten konnten nicht gespeichert werden." +
+                    "Prüfen Sie ob die Katze schon gespeichert wurde. Falls der Fehler weiterhin auftritt kontaktieren" +
+                    "Sie bitte unseren Support");
+            return "create-cat-failed-page";
+        }
+        catService.saveCat(newCat);
+        model.addAttribute("catName", catDTO.getName());
+        return "create-cat-page";
     }
 }

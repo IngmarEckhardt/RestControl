@@ -16,7 +16,6 @@ class CatRepoServiceImpl implements de.cats.restcat.service.CatRepoService {
         this.backupRepo = backupRepo;
         this.primaryRepo = primaryRepo;
         this.repoServiceThreadPool = new ForkJoinPool (4);
-
     }
 
     @Override

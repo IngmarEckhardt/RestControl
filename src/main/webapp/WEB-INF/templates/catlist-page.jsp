@@ -29,7 +29,6 @@
             <td>${cat.weight}</td>
             <td>${cat.chubby}</td>
             <td>${cat.sweet}</td>
-
         </tr>
     </c:forEach>
     </tbody>
