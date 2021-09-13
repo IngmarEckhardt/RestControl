@@ -20,4 +20,6 @@ public class CatViewControllerConfig implements WebMvcConfigurer {
         bean.setSuffix(".jsp");
         return bean;
     }
+
+
 }

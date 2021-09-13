@@ -3,16 +3,28 @@ package de.cats.restcat.controller;
 import de.cats.restcat.service.Cat;
 import de.cats.restcat.service.CatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Controller
 public class CatViewController {
-    static CatDTO lastCatDTO;
-
+    CatDTO lastCatDTO;
     private CatService catService;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+    }
 
     @Autowired
     public void setCatService(CatService catService) {
@@ -25,8 +37,9 @@ public class CatViewController {
     }
 
     @RequestMapping("mvc/form-new-cat")
-    String formNewCatPage() {
-
+    String formNewCatPage(Model model) {
+        CatDTO catDTO = new CatDTO();
+        model.addAttribute("catDTO", catDTO);
         return "new-cat-form-page";
     }
 

@@ -1,3 +1,4 @@
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -8,24 +9,23 @@
 <h2 align="center">Füge eine neue Katze hinzu</h2>
 <h5>Wenn du Werte nicht kennst, lass das Eingabefeld frei.</h5>
 
-<form action="create-cat">
-    <input type="hidden" name="id" value="0">
+<form:form action="create-cat" modelAttribute="catDTO">
+    <form:input type="hidden" path="id"/>
     <div>
 
         <label for="name">Name der Katze: </label>
-        <input type="text" name="name" placeholder="Max Musterkatz" id="name">
+        <form:input path="name" id="name"/>
         <br><br>
 
         <label for="age">Alter der Katze:</label>
-        <input type="number" name="age" id="age" min="1" max="25"/>
+        <form:input type="number" path="age" id="age" min="1" max="25"/>
         <br><br>
 
         <label for="date">Impfdatum</label>
-        <input type="date" id="date" name="date"
-               value="2020-01-01">
+        <form:input type="date" path="realDate" id="date"/>
         <br><br>
         <label for="weight">Gewicht der Katze:</label>
-        <input type="number" name="weight" id="weight" min="0" max="10" step="0.2"/>
+        <form:input type="number" path="weight" id="weight" min="0" max="10" step="0.2"/>
         <p>Die Katze ist rund</p>
 
         <div>
@@ -52,9 +52,9 @@
         </div>
         <br>
 
-          <input type="submit" value="Speichern"> <a href="index">zurück</a><br>
+        <input type="submit" value="Speichern"> <a href="index">zurück</a><br>
 
     </div>
-</form>
+</form:form>
 </body>
 </html>

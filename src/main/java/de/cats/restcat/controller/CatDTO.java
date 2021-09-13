@@ -1,26 +1,24 @@
 package de.cats.restcat.controller;
 
 import de.cats.restcat.service.Cat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
 public class CatDTO {
-    private String id;
-    private String name;
-    private String age;
-    private String date;
-    private String weight;
-    private String chubby;
-    private String sweet;
+    private Integer id = 0;
+    private String name = "MaxMusterkatz";
+    private Integer age = 15;
+    private Date date;
+    private Float weight = 15f;
+    private String chubby = "true";
+    private String sweet = "true";
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -32,27 +30,36 @@ public class CatDTO {
         this.name = name;
     }
 
-    public String getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(String age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String vaccineDate) {
+    public void setDate(Date vaccineDate) {
         this.date = vaccineDate;
     }
 
-    public String getWeight() {
+    public Date getRealDate() {
+        return date;
+    }
+
+    public void setRealDate(Date realDate) {
+        this.date = realDate;
+    }
+
+
+    public Float getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(Float weight) {
         this.weight = weight;
     }
 
@@ -73,23 +80,13 @@ public class CatDTO {
     }
 
     public Cat getCat (){
-        Integer idInt = Integer.parseInt(id);
-        Integer ageInt = Integer.parseInt(age);
-        Date dateSimpleDate;
-        try {
-            dateSimpleDate = new SimpleDateFormat("yyyy-MM-dd").
-                    parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-        LocalDate vaccineDate = dateSimpleDate.toInstant()
+
+        LocalDate localDate = date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
-        Float weightFloat = Float.parseFloat(weight);
         Boolean chubbyBoolean = chubby.equals("true");
         Boolean sweetBoolean = sweet.equals("true");
 
-        return new Cat(idInt, name, ageInt, vaccineDate, weightFloat, chubbyBoolean, sweetBoolean);
+        return new Cat(id, name, age, localDate, weight, chubbyBoolean, sweetBoolean);
     }
 }
