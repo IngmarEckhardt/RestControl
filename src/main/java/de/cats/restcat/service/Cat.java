@@ -5,13 +5,14 @@ import java.time.LocalDate;
 
 public class Cat {
     private Integer id;
+
     private String name;
+
     private Integer age;
     private LocalDate vaccineDate;
     private Float weight;
     private Boolean chubby;
     private Boolean sweet;
-
     public Cat() {}
 
     public Cat(int id, String name, int age, LocalDate vaccineDate, float weight, boolean chubby, boolean sweet) {
@@ -76,4 +77,9 @@ public class Cat {
     public String getSweet() {
         return sweet ? "true" : "false";
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

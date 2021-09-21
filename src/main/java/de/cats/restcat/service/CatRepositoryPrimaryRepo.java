@@ -1,25 +1,21 @@
 package de.cats.restcat.service;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 class CatRepositoryPrimaryRepo implements CatRepository {
-    private static final String ALL_VALUES =
-            "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats";
-    private static final String ERASE_TABLE =
-            "TRUNCATE TABLE Cats";
-    private static final String COUNT_CATS =
-            "select COUNT(*) from Cats";
-    private static final String INSERT_CAT =
-            "INSERT INTO Cats (NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?)";
-    private static final String GET_MAX_ID =
-            "select MAX(ID) from Cats";
-    private static final String DELETE_ID =
-            "DELETE FROM Cats WHERE ID = ?";
-    private static final String UPDATE_ID =
-            "REPLACE INTO Cats (ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?,?)";
+    private static final String
+            ALL_VALUES = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
+            ERASE_TABLE = "TRUNCATE TABLE Cats",
+            COUNT_CATS = "select COUNT(*) from Cats",
+            INSERT_CAT = "INSERT INTO Cats (NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?)",
+            GET_MAX_ID = "select MAX(ID) from Cats",
+            GET_CAT = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats where ID = ?",
+            DELETE_ID = "DELETE FROM Cats WHERE ID = ?",
+            UPDATE_ID = "REPLACE INTO Cats (ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?,?)";
     private final ArrayList<Cat> catArray;
     private final DataSource dataSource;
 

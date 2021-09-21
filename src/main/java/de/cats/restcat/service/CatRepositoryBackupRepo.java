@@ -6,19 +6,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class CatRepositoryBackupRepo implements de.cats.restcat.service.CatRepository {
+class CatRepositoryBackupRepo implements CatRepository {
     private final ObjectMapper objectMapper;
 
-    public CatRepositoryBackupRepo(ObjectMapper mapper) {
-        this.objectMapper = mapper;
+    private File datei = new File("Cats.json");
+
+    public CatRepositoryBackupRepo(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public ArrayList<Cat> readCats() {
-        ArrayList<Cat> catArray = null;
-        File datei = new File("Cats.json");
+        ArrayList<Cat> catArray;
+
         try {
             catArray = new ArrayList<>(Arrays.asList(objectMapper.readValue(datei, Cat[].class)));
+            System.out.println("Backuplist gelesen");
         } catch (IOException e) {
             throw new RuntimeException("Die Cats.json-Datei war nicht lesbar");
         }
@@ -28,7 +31,6 @@ class CatRepositoryBackupRepo implements de.cats.restcat.service.CatRepository {
     @Override
     public boolean writeCats(ArrayList<Cat> catList) {
         try {
-            File datei = new File("Cats.json");
             objectMapper.writeValue(datei, catList);
         } catch (IOException e) {
             throw new RuntimeException("Die Cats.json-Datei war nicht schreibbar");
@@ -38,8 +40,10 @@ class CatRepositoryBackupRepo implements de.cats.restcat.service.CatRepository {
 
     @Override
     public boolean addNewCat(Cat cat) {return false;}
+
     @Override
     public boolean deleteCat(Cat cat) {return false;}
     @Override
     public boolean editCat(Cat cat) {return false;}
+
 }

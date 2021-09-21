@@ -1,0 +1,1 @@
+[{"id":1,"name":"DummyToStay","age":1,"vaccineDate":[2001,1,1],"weight":2.2,"chubby":true,"sweet":true},{"id":3,"name":"DummyNullDate","age":1,"vaccineDate":[2001,1,1],"weight":2.2,"chubby":true,"sweet":true},{"id":4,"name":"DummyWithDate","age":1,"vaccineDate":[2021,9,8],"weight":2.0,"chubby":true,"sweet":true}]

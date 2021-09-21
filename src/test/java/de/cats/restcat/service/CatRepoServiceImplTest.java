@@ -3,7 +3,6 @@ package de.cats.restcat.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 class CatRepoServiceImplTest {
     private static CatRepositoryPrimaryRepo mariaDB;
     private static CatRepositoryBackupRepo localBackup;

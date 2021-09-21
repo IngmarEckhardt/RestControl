@@ -1,9 +1,18 @@
 package de.cats.restcat.service;
 
+import de.cats.restcat.CatAppInitializer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mock.jndi.SimpleNamingContextBuilder;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
+import org.mockito.Mockito;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,35 +23,41 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringJUnitWebConfig(classes = CatAppInitializer.class)
 class CatRepositoryPrimaryRepoTest {
 
-    private static final String ALL_VALUES =
-            "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from CatControl.Cats";
-    private static final String ERASE_TABLE =
-            "TRUNCATE TABLE CatControl.Cats";
-    private static final String COUNT_CATS =
-            "select COUNT(*) from CatControl.Cats";
-    private static final String INSERT_CAT =
-            "INSERT INTO CatControl.Cats (NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?)";
-    private static final String GET_MAX_ID =
-            "select MAX(ID) from CatControl.Cats";
-    private static final String GET_CAT =
-            "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from CatControl.Cats where ID = ?";
-    private static final String DELETE_ID =
-            "DELETE FROM CatControl.Cats WHERE ID = ?";
-    private static final String UPDATE_ID =
-            "REPLACE INTO CatControl.Cats (ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?,?)";
+    private static final String
+            ALL_VALUES = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
+            ERASE_TABLE = "TRUNCATE TABLE Cats",
+            INSERT_CAT = "INSERT INTO Cats (NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?)",
+            GET_MAX_ID = "select MAX(ID) from Cats",
+            GET_CAT = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats where ID = ?";
 
-    private Boolean success;
-    private Connection connection;
     private CatRepositoryPrimaryRepo mariaDB;
+    private DataSource dataSource;
+    private Connection connection;
+    private Boolean success;
+    private InitialContext initContext;
     private ArrayList<Cat> catlist;
     private int idTestCat;
     private String nameTestCat;
     private final Cat dummyCatDateNull = new Cat(0, "DummyNullDate", 1, null, 2.2f, true, true);
     private final Cat dummyCatWithDate = new Cat(0, "DummyWithDate", 1, LocalDate.now(), 2, true, true);
 
+    @BeforeEach
+    public void init() throws Exception {
+        SimpleNamingContextBuilder.emptyActivatedContextBuilder();
+        this.initContext = new InitialContext();
+    }
+
+    @Test
+    public void whenMockJndiDataSource_thenReturnJndiDataSource() throws Exception {
+        this.initContext.bind("java:comp/env/jdbc/datasource",
+                new DriverManagerDataSource("jdbc:mariadb://localhost:3306/CatControlTest", "max1", "password"));
+        DataSource ds = (DataSource) this.initContext.lookup("java:comp/env/jdbc/datasource");
+
+        assertNotNull(ds.getConnection());
+    }
 
     @Test
     public void readCats_withMariaDbOnline_shouldLoadCats() throws Exception {
@@ -50,6 +65,8 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithTestDB();
 
         //when
+
+        System.out.println(connection);
 
         catlist = mariaDB.readCats();
         //then
@@ -65,14 +82,14 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithMockDB();
 
         //when
-        when(connection.prepareStatement(COUNT_CATS)).thenThrow(SQLException.class);
+        when(dataSource.getConnection()).thenThrow(SQLException.class);
 
         //then
         Exception exception = assertThrows(RuntimeException.class, () -> catlist = mariaDB.readCats());
         assertAll("SQL-Exceptions",
                 () -> assertEquals(exception.getMessage(), "SQL-Verbindung zur MariaDB fehlgeschlagen"),
                 () -> assertNull(catlist),
-                () -> verify(connection, times(1)).prepareStatement(COUNT_CATS));
+                () -> verify(dataSource, times(1)).getConnection());
     }
 
     @Test
@@ -82,13 +99,13 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithMockDB();
 
         //when
-        when(connection.prepareStatement(COUNT_CATS)).thenThrow(RuntimeException.class);
+        when(dataSource.getConnection()).thenThrow(RuntimeException.class);
         catlist = mariaDB.readCats();
 
         //then
         assertAll("It Should Return a ArrayList with the value null",
                 () -> assertNull(catlist),
-                () -> verify(connection, times(1)).prepareStatement(COUNT_CATS));
+                () -> verify(dataSource, times(1)).getConnection());
 
     }
 
@@ -102,6 +119,7 @@ class CatRepositoryPrimaryRepoTest {
         success = mariaDB.addNewCat(dummyCatDateNull);
         mariaDB.addNewCat(dummyCatWithDate);
 
+        Connection connection = dataSource.getConnection();
         PreparedStatement stmt = connection.prepareStatement(GET_MAX_ID);
         ResultSet set = stmt.executeQuery();
         if (set.next()) idTestCat = set.getInt(1);
@@ -127,7 +145,7 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithMockDB();
 
         //when
-        when(connection.prepareStatement(INSERT_CAT)).thenThrow(SQLException.class);
+        when(dataSource.getConnection()).thenThrow(SQLException.class);
 
         //then
         Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.addNewCat(dummyCatDateNull));
@@ -143,7 +161,7 @@ class CatRepositoryPrimaryRepoTest {
         success = null;
 
         //when
-        when(connection.prepareStatement(INSERT_CAT)).thenThrow(RuntimeException.class);
+        when(dataSource.getConnection()).thenThrow(RuntimeException.class);
         success = mariaDB.addNewCat(dummyCatDateNull);
 
         //then
@@ -151,17 +169,16 @@ class CatRepositoryPrimaryRepoTest {
     }
 
 
-
     @Test
     void writeCats_withMariaDbOnline_shouldWriteCatArrayWithSecondNameDummy() throws Exception {
         //given
-        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate,dummyCatDateNull));
         setUpWithTestDB();
+
+        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate, dummyCatDateNull));
         success = null;
 
         //when
         success = mariaDB.writeCats(catlist);
-        setUpWithTestDB();
         ArrayList<Cat> results = mariaDB.readCats();
 
         //then
@@ -175,44 +192,48 @@ class CatRepositoryPrimaryRepoTest {
     void writeCats_throwingSQLException_getRuntimeExceptionWithMessageAndReturnNull() throws Exception {
         //given
         setUpWithMockDB();
-        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate,dummyCatDateNull));
+
+        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate, dummyCatDateNull));
 
         //when
-        when(connection.prepareStatement(ERASE_TABLE)).thenThrow(SQLException.class);
+        when(dataSource.getConnection()).thenThrow(SQLException.class);
 
         //then
         Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.writeCats(catlist));
         assertAll("when a SQLException occurs it should catch it and throw a RuntimeException with own message",
                 () -> assertEquals(exception.getMessage(), "SQL-Verbindung zur MariaDB fehlgeschlagen"),
                 () -> assertNull(success),
-                () -> verify(connection, times(1)).prepareStatement(ERASE_TABLE));
+                () -> verify(dataSource, times(1)).getConnection());
     }
 
     @Test
     void writeCats_throwingRuntimeException_shouldReturnFalse() throws Exception {
         //given
         setUpWithMockDB();
-        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate,dummyCatDateNull));
+
+        catlist = new ArrayList<>(Arrays.asList(dummyCatWithDate, dummyCatDateNull));
         //when
-        when(connection.prepareStatement(ERASE_TABLE)).thenThrow(RuntimeException.class);
+        when(dataSource.getConnection()).thenThrow(RuntimeException.class);
         assertNull(success);
         success = mariaDB.writeCats(catlist);
 
         //then
         assertFalse(success);
-        verify(connection, times(1)).prepareStatement(ERASE_TABLE);
+        verify(dataSource, times(1)).getConnection();
     }
 
     @Test
-    void deleteCat_withMariaDbOnline_ShouldDeleteCat() throws SQLException {
+    void deleteCat_withMariaDbOnline_ShouldDeleteCat() throws SQLException, NamingException {
         //given
         setUpWithTestDB();
+
+        connection = dataSource.getConnection();
         PreparedStatement eraseTable = connection.prepareStatement(ERASE_TABLE);
         eraseTable.executeQuery();
 
         dummyCatDateNull.setName("DummyToStay");
-        addCatToTestDatabase(dummyCatDateNull);
-        addCatToTestDatabase(dummyCatWithDate);
+        addCatToTestDatabase(connection, dummyCatDateNull);
+        addCatToTestDatabase(connection, dummyCatWithDate);
 
         //when
         success = mariaDB.deleteCat(dummyCatWithDate);
@@ -237,15 +258,17 @@ class CatRepositoryPrimaryRepoTest {
         //given
         setUpWithMockDB();
 
+
         //when
-        when(connection.prepareStatement(DELETE_ID)).thenThrow(SQLException.class);
+        when(dataSource.getConnection()).thenThrow(SQLException.class);
 
         //then
-        Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.deleteCat(Mockito.any()));
+        Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.deleteCat(dummyCatDateNull));
         assertAll("when a SQLException occurs it should catch it and throw a RuntimeException with own message",
                 () -> assertEquals(exception.getMessage(), "SQL-Verbindung zur MariaDB fehlgeschlagen"),
                 () -> assertNull(success),
-                () -> verify(connection, times(1)).prepareStatement(DELETE_ID));
+                () -> verify(dataSource, times(1)).getConnection());
+
     }
 
     @Test
@@ -254,24 +277,26 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithMockDB();
 
         //when
-        when(connection.prepareStatement(DELETE_ID)).thenThrow(RuntimeException.class);
+        when(dataSource.getConnection()).thenThrow(RuntimeException.class);
 
-        success = mariaDB.deleteCat(Mockito.any());
+        success = mariaDB.deleteCat(dummyCatDateNull);
         //then
         assertFalse(success);
-        verify(connection, times(1)).prepareStatement(DELETE_ID);
+        verify(dataSource, times(1)).getConnection();
     }
 
     @Test
     void editCat_withMariaDbOnline_shouldUpdateACat() throws Exception {
-        //given
+        //given - adding Cats to Test-Database, then changing the name of the Cats.
         setUpWithTestDB();
-        addCatToTestDatabase(dummyCatDateNull);
-        addCatToTestDatabase(dummyCatWithDate);
+        connection = dataSource.getConnection();
+
+        addCatToTestDatabase(connection, dummyCatDateNull);
+        addCatToTestDatabase(connection, dummyCatWithDate);
         dummyCatDateNull.setName("NewName");
         dummyCatWithDate.setName("DummyToStay");
 
-        //when
+        //when - adding changes to Database
         mariaDB.editCat(dummyCatWithDate);
         mariaDB.editCat(dummyCatDateNull);
 
@@ -290,44 +315,59 @@ class CatRepositoryPrimaryRepoTest {
         setUpWithMockDB();
 
         //when
-        when(connection.prepareStatement(UPDATE_ID)).thenThrow(SQLException.class);
+        when(dataSource.getConnection()).thenThrow(SQLException.class);
 
         //then
-        Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.editCat(Mockito.any()));
+        Exception exception = assertThrows(RuntimeException.class, () -> success = mariaDB.editCat(dummyCatDateNull));
         assertAll("when a SQLException occurs it should catch it and throw a RuntimeException with own message",
                 () -> assertEquals(exception.getMessage(), "SQL-Verbindung zur MariaDB fehlgeschlagen"),
                 () -> assertNull(success),
-                () -> verify(connection, times(1)).prepareStatement(UPDATE_ID));
+                () -> verify(dataSource, times(1)).getConnection());
     }
 
     @Test
     void editCat_throwingRuntimeException_shouldReturnFalse() throws Exception {
         //given
-        setUpWithMockDB();
+//        setUpWithMockDB();
+        dataSource = mock(DataSource.class);
+        mariaDB = new CatRepositoryPrimaryRepo(dataSource);
 
         //when
-        when(connection.prepareStatement(UPDATE_ID)).thenThrow(RuntimeException.class);
+        when(dataSource.getConnection()).thenThrow(RuntimeException.class);
 
         success = mariaDB.editCat(Mockito.any());
         //then
         assertFalse(success);
-        verify(connection, times(1)).prepareStatement(UPDATE_ID);
+//        verify(dataSource, times(1)).getConnection();
     }
-
 
 
     private void setUpWithMockDB() {
-        this.connection = mock(Connection.class);
-        mariaDB = new CatRepositoryPrimaryRepo(connection);
+        dataSource = mock(DataSource.class);
+        mariaDB = new CatRepositoryPrimaryRepo(dataSource);
     }
 
-    private void setUpWithTestDB() throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:mariadb://localhost/", "max1", "password");
-        mariaDB = new CatRepositoryPrimaryRepo(connection);
+    private void setUpWithTestDB() throws SQLException, NamingException {
+        this.initContext.bind("java:comp/env/jdbc/datasource",
+                new DriverManagerDataSource("jdbc:mariadb://localhost:3306/CatControlTest", "max1", "password"));
+        dataSource = (DataSource) this.initContext.lookup("java:comp/env/jdbc/datasource");
+        mariaDB = new CatRepositoryPrimaryRepo(dataSource);
     }
 
-    private void addCatToTestDatabase(Cat newCat) throws SQLException {
+    private DataSource getDataSource() {
+        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+        dataSourceBuilder.driverClassName("org.mariadb.jdbc.Driver");
+        dataSourceBuilder.url("jdbc:mariadb://localhost:3306/CatControlTest");
+        dataSourceBuilder.username("max1");
+        dataSourceBuilder.password("password");
+        return dataSourceBuilder.build();
+    }
+
+    private void addCatToTestDatabase(Connection connection, Cat newCat) throws SQLException {
         insertCatStatement(connection, newCat).executeQuery();
+
+        /**checking if the last cat in the Test-Database has the same Name as newCat, setting
+         * newCats-id to the ID that was given from the DB*/
 
         PreparedStatement stmtGetIdNewCat = connection.prepareStatement(GET_MAX_ID);
         ResultSet set = stmtGetIdNewCat.executeQuery();
@@ -359,4 +399,3 @@ class CatRepositoryPrimaryRepoTest {
         return stmt;
     }
 }
-

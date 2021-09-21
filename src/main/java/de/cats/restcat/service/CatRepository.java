@@ -1,5 +1,6 @@
 package de.cats.restcat.service;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**

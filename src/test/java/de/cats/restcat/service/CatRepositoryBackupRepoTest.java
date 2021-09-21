@@ -1,12 +1,15 @@
 package de.cats.restcat.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.cats.restcat.CatAppInitializer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +25,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringJUnitWebConfig(classes = CatAppInitializer.class)
+@ExtendWith(MockitoExtension.class)
 public class CatRepositoryBackupRepoTest {
 
     private ObjectMapper objectMapper;
@@ -30,7 +34,7 @@ public class CatRepositoryBackupRepoTest {
     private ArrayList<Cat> catArray;
     private Boolean successful;
 
-    private final File datei = new File(System.getProperty("user.home") + File.separator + "Cats.json");
+    private final File datei = new File("Cats.json");
     private final Cat dummyCatDateNull =
             new Cat(0, "DummyNullDate", 1, null, 2.2f, true, true);
     private final Cat dummyCatWithDate =
