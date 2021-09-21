@@ -23,6 +23,7 @@ class CatRepositoryBackupRepo implements CatRepository {
             catArray = new ArrayList<>(Arrays.asList(objectMapper.readValue(datei, Cat[].class)));
             System.out.println("Backuplist gelesen");
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException("Die Cats.json-Datei war nicht lesbar");
         }
         return catArray;
@@ -33,6 +34,7 @@ class CatRepositoryBackupRepo implements CatRepository {
         try {
             objectMapper.writeValue(datei, catList);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException("Die Cats.json-Datei war nicht schreibbar");
         }
         return true;
