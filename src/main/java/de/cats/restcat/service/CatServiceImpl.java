@@ -12,7 +12,6 @@ public class CatServiceImpl implements CatService {
     public CatServiceImpl(CatRepoService catRepoService) {
         this.catRepoService = catRepoService;
         this.catArray = catRepoService.readCats();
-        System.out.println("Konstruktur CatsService aufgerufen");
     }
 
     @Override
@@ -36,7 +35,6 @@ public class CatServiceImpl implements CatService {
             catArray.clear();
             catArray.addAll(filteredList);
         }
-        System.out.println("Nach dem Abspeichern der Katze enthält die Catlist im CatService" + catArray.stream().toString());
         return catArray;
     }
 
@@ -50,11 +48,9 @@ public class CatServiceImpl implements CatService {
         return catArray;
     }
 
-
     @Override
     public ArrayList<Cat> deleteCatWithID(Integer id) {
         Cat cat = filterCatOutOfArrayWithID(id).get(0);
-
         return deleteCat(cat);
     }
 
@@ -72,7 +68,6 @@ public class CatServiceImpl implements CatService {
     }
 
     @Override
-
     public ArrayList<Cat> getCatlist() {
         catArray = catRepoService.readCats();
         return catArray;

@@ -1,7 +1,6 @@
 package de.cats.restcat.service;
 
 import javax.sql.DataSource;
-import java.io.File;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ class CatRepositoryPrimaryRepo implements CatRepository {
             while (resultSet.next()) catArray.add(createCat(resultSet));
 
         } catch (SQLException e) {
-            throw new RuntimeException("SQL-Verbindung zur MariaDB fehlgeschlagen");
+            throw new RuntimeException("SQL-Connection to MariaDB failed");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return null;
@@ -109,7 +108,6 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         return true;
     }
 
-
     private PreparedStatement getRowCountStatement(Connection conn) throws SQLException {
         return conn.prepareStatement(COUNT_CATS);
     }
@@ -122,21 +120,9 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         return conn.prepareStatement(ERASE_TABLE);
     }
 
-    private PreparedStatement insertCatStatement(Connection conn, Cat catToInsert) throws SQLException {
-
-        PreparedStatement stmt = conn.prepareStatement(
-                INSERT_CAT);
-
-        stmt.setString(1, catToInsert.getName());
-        if (catToInsert.getName() == null) throw new RuntimeException("name is null");
-        stmt.setInt(2, catToInsert.getAge());
-        if (catToInsert.getVaccineDate() != null)
-            stmt.setDate(3, Date.valueOf(catToInsert.getVaccineDate()));
-        else stmt.setDate(3, Date.valueOf("2001-01-01"));
-        stmt.setFloat(4, catToInsert.getWeight());
-        stmt.setString(5, catToInsert.isChubby() ? "true" : "false");
-        stmt.setString(6, catToInsert.isSweet() ? "true" : "false");
-        return stmt;
+    private PreparedStatement insertCatStatement(Connection conn, Cat catToSave) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement(INSERT_CAT);
+        return insertCatValuesInStatement(catToSave, stmt, -1);
     }
 
     private PreparedStatement getHighestIdStatement(Connection conn) throws SQLException {
@@ -149,34 +135,37 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         return stmt;
     }
 
-    private PreparedStatement editCatStatement(Connection conn, Cat catToEdit) throws SQLException {
+    private PreparedStatement editCatStatement(Connection conn, Cat catToSave) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(UPDATE_ID);
+        return insertCatValuesInStatement(catToSave, stmt, 0);
+    }
 
-        stmt.setInt(1, catToEdit.getId());
-        if (catToEdit.getName() == null) throw new RuntimeException("name is null");
-        stmt.setString(2, catToEdit.getName());
-        stmt.setInt(3, catToEdit.getAge());
-        if (catToEdit.getVaccineDate() != null)
-            stmt.setDate(4, Date.valueOf(catToEdit.getVaccineDate()));
-        else stmt.setDate(4, Date.valueOf("2001-01-01"));
-        stmt.setFloat(5, catToEdit.getWeight());
-        stmt.setString(6, catToEdit.isChubby() ? "true" : "false");
-        stmt.setString(7, catToEdit.isSweet() ? "true" : "false");
+    private PreparedStatement insertCatValuesInStatement(Cat catToSave, PreparedStatement stmt, Integer index) throws SQLException {
+
+        if (index == 0) stmt.setInt(index + 1, catToSave.getId());
+        if (catToSave.getName() == null) throw new RuntimeException("name is null");
+        if (catToSave.getName().length() > 50) throw new RuntimeException("name should have less than 50 characters");
+        stmt.setString(index + 2, catToSave.getName());
+        stmt.setInt(index + 3, catToSave.getAge());
+        if (catToSave.getVaccineDate() != null)
+            stmt.setDate(index + 4, Date.valueOf(catToSave.getVaccineDate()));
+        else stmt.setDate(index + 4, Date.valueOf("2001-01-01"));
+        stmt.setFloat(index + 5, catToSave.getWeight());
+        stmt.setString(index + 6, catToSave.isChubby() ? "true" : "false");
+        stmt.setString(index + 7, catToSave.isSweet() ? "true" : "false");
+
         return stmt;
     }
 
     private Cat createCat(ResultSet results) throws SQLException {
-        LocalDate vaccineDate;
-
+        Integer id = results.getInt("ID");
         String name = results.getString("NAME");
         if (name == null || name.length() < 1 || name.length() > 50) return null;
-
-        int id = results.getInt("ID");
-        int age = results.getInt("AGE");
-        float weight = results.getFloat("WEIGHT");
-        boolean chubby = results.getString("CHUBBY").equals("true");
-        boolean sweet = results.getString("SWEET").equals("true");
-        vaccineDate = results.getDate("VACCINEDATE").toLocalDate();
+        Integer age = results.getInt("AGE");
+        Float weight = results.getFloat("WEIGHT");
+        Boolean chubby = results.getString("CHUBBY").equals("true");
+        Boolean sweet = results.getString("SWEET").equals("true");
+        LocalDate vaccineDate = results.getDate("VACCINEDATE").toLocalDate();
 
         return new Cat(id, name, age, vaccineDate, weight, chubby, sweet);
     }

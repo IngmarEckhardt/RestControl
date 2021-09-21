@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
@@ -17,7 +16,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,8 +31,6 @@ public class CatRepositoryBackupRepoTest {
     private CatRepository catsRepository;
     private ArrayList<Cat> catArray;
     private Boolean successful;
-
-    private final File datei = new File("Cats.json");
     private final Cat dummyCatDateNull =
             new Cat(0, "DummyNullDate", 1, null, 2.2f, true, true);
     private final Cat dummyCatWithDate =
@@ -58,7 +54,6 @@ public class CatRepositoryBackupRepoTest {
 
         //then
         assertTrue(results.get(0).getClass() == Cat.class);
-
     }
 
     @Test
@@ -87,14 +82,16 @@ public class CatRepositoryBackupRepoTest {
 
         //when-then
         Exception exception = assertThrows(RuntimeException.class, () -> catsRepository.readCats());
-        assertEquals(exception.getMessage(), "Die Cats.json-Datei war nicht lesbar");
+        assertEquals(exception.getMessage(), "Cats.json-Datei was not readable");
     }
-
 
     @Test
     void writeCats_withHDDworking_shouldInvokeObjectmapper() throws IOException {
         //given
         setupWithMockObjectMapper();
+        ClassLoader classLoader = getClass().getClassLoader();
+        File datei = new File(classLoader.getResource("Cats.json").getFile());
+
         catArray = new ArrayList<>(Arrays.asList(dummyCatDateNull,dummyCatWithDate));
 
         //when
@@ -112,6 +109,8 @@ public class CatRepositoryBackupRepoTest {
     public void writeCats_throwingAnIOException_shouldThrowNewRuntimeExceptionWithMessage() throws IOException {
         //given
         setupWithMockObjectMapper();
+        ClassLoader classLoader = getClass().getClassLoader();
+        File datei = new File(classLoader.getResource("Cats.json").getFile());
         catArray = new ArrayList<>(Arrays.asList(dummyCatDateNull,dummyCatWithDate));
 
         //when
@@ -120,7 +119,7 @@ public class CatRepositoryBackupRepoTest {
         //then
         Exception exception = assertThrows(RuntimeException.class, () -> successful = catsRepository.writeCats(catArray));
         assertAll("it should return null and throw a RuntimeException with a Message",
-                () -> assertEquals(exception.getMessage(), "Die Cats.json-Datei war nicht schreibbar"),
+                () -> assertEquals(exception.getMessage(), "Cats.json-Datei was not writable"),
                 () -> assertNull(successful));
     }
 

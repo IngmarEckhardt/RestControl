@@ -10,12 +10,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-
 @Configuration
 public class BeanConfigService {
-
     private Context envContext;
-
 
     @PostConstruct
     public void init() throws NamingException {
@@ -24,8 +21,7 @@ public class BeanConfigService {
         try {
             initContext = new InitialContext();
             envContext = (Context) initContext.lookup("java:/comp/env");
-        } catch (
-                NamingException e) {
+        } catch (NamingException e) {
             throw new NamingException("Context not found");
         }
     }
@@ -54,18 +50,18 @@ public class BeanConfigService {
     }
 
     @Bean
-    public CatRepositoryBackupRepo catRepositoryBackupRepo() {
+    public CatRepositoryBackupRepo backupRepo() {
         return new CatRepositoryBackupRepo(objectMapper());
     }
 
     @Bean
-    public CatRepositoryPrimaryRepo catRepositoryPrimaryRepo() {
+    public CatRepositoryPrimaryRepo primaryRepo() {
         return new CatRepositoryPrimaryRepo(dataSource());
     }
 
     @Bean
     public CatRepoService catRepoService() {
-        return new CatRepoServiceImpl( catRepositoryPrimaryRepo(), catRepositoryBackupRepo());
+        return new CatRepoServiceImpl( primaryRepo(), backupRepo());
     }
 
     @Bean

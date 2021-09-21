@@ -8,11 +8,13 @@ import java.util.Arrays;
 
 class CatRepositoryBackupRepo implements CatRepository {
     private final ObjectMapper objectMapper;
+    private final File datei;
 
-    private File datei = new File("Cats.json");
 
     public CatRepositoryBackupRepo(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        ClassLoader classLoader = getClass().getClassLoader();
+        datei = new File(classLoader.getResource("Cats.json").getFile());
     }
 
     @Override
@@ -22,9 +24,10 @@ class CatRepositoryBackupRepo implements CatRepository {
         try {
             catArray = new ArrayList<>(Arrays.asList(objectMapper.readValue(datei, Cat[].class)));
             System.out.println("Backuplist gelesen");
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Die Cats.json-Datei war nicht lesbar");
+            throw new RuntimeException("Cats.json-Datei was not readable");
         }
         return catArray;
     }
@@ -35,7 +38,7 @@ class CatRepositoryBackupRepo implements CatRepository {
             objectMapper.writeValue(datei, catList);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Die Cats.json-Datei war nicht schreibbar");
+            throw new RuntimeException("Cats.json-Datei was not writable");
         }
         return true;
     }
@@ -45,6 +48,7 @@ class CatRepositoryBackupRepo implements CatRepository {
 
     @Override
     public boolean deleteCat(Cat cat) {return false;}
+
     @Override
     public boolean editCat(Cat cat) {return false;}
 

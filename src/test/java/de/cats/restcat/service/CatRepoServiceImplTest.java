@@ -1,20 +1,20 @@
 package de.cats.restcat.service;
 
+import de.cats.restcat.CatAppInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringJUnitWebConfig(classes = CatAppInitializer.class)
 class CatRepoServiceImplTest {
     private static CatRepositoryPrimaryRepo mariaDB;
     private static CatRepositoryBackupRepo localBackup;
@@ -71,6 +71,5 @@ class CatRepoServiceImplTest {
                 () -> assertEquals(dummyCatWithDate.getName(), catArrayList.get(0).getName()),
                 () -> verify(mariaDB, times(1)).readCats(),
                 () -> verify(localBackup, times(1)).readCats());
-
     }
 }
