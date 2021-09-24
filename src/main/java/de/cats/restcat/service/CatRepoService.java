@@ -13,6 +13,7 @@ interface CatRepoService {
      * readCats()-Method should use non-static readCats()-method from the primary Repository to get and return a ArrayList<Cat>
      * or ask a non-static method readCats() to get a ArrayList from the BackUpRepository.
      * If the primary Repository is working it should use save the list into the BackUpRepository with its non-static-method writeCats()
+     * The method should deal with Repositories throwing Runtime Exceptions or return null.
      *
      * @return ArrayList<Cat>
      */

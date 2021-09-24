@@ -28,13 +28,14 @@ public class BeanConfigService {
 
     @Bean
     public DataSource dataSource() {
-        DataSource dataSource = null;
+        DataSource dataSource;
 
         try {
             dataSource = (DataSource) envContext.lookup("jdbc/MariaDB");
         } catch (NamingException e) {
-            System.out.println("Object jdbc/MariaDB not found");
+            System.out.println("Object jdbc/MariaDB not found in environment context");
             e.printStackTrace();
+            return null;
         }
         envContext = null;
         System.out.println("DataSource initialized");
@@ -56,7 +57,7 @@ public class BeanConfigService {
 
     @Bean
     public CatRepositoryPrimaryRepo primaryRepo() {
-        return new CatRepositoryPrimaryRepo(dataSource());
+         return new CatRepositoryPrimaryRepo(dataSource());
     }
 
     @Bean

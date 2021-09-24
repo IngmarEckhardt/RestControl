@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 class CatRepositoryPrimaryRepo implements CatRepository {
     private static final String
-            ALL_VALUES = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
+            ALL_CATS = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
             ERASE_TABLE = "TRUNCATE TABLE Cats",
             COUNT_CATS = "select COUNT(*) from Cats",
             INSERT_CAT = "INSERT INTO Cats (NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET) VALUES (?,?,?,?,?,?)",
@@ -18,7 +18,6 @@ class CatRepositoryPrimaryRepo implements CatRepository {
     private final ArrayList<Cat> catArray;
     private final DataSource dataSource;
 
-
     CatRepositoryPrimaryRepo(DataSource dataSource) {
         this.dataSource = dataSource;
         this.catArray = new ArrayList<>();
@@ -27,16 +26,15 @@ class CatRepositoryPrimaryRepo implements CatRepository {
     @Override
     public ArrayList<Cat> readCats() {
         int length = 0;
-
         try (Connection connection = dataSource.getConnection()) {
             System.out.println("Connection to MariaDB successful, start reading Cats");
-            ResultSet rowCount = getRowCountStatement(connection).executeQuery();
+            ResultSet rowCount = connection.prepareStatement(COUNT_CATS).executeQuery();
             if (rowCount.next()) length = rowCount.getInt(1);
 
             catArray.clear();
             catArray.ensureCapacity(length);
 
-            ResultSet resultSet = getAllCatsStatement(connection).executeQuery();
+            ResultSet resultSet = connection.prepareStatement(ALL_CATS).executeQuery();
             while (resultSet.next()) catArray.add(createCat(resultSet));
 
         } catch (SQLException e) {
@@ -52,11 +50,10 @@ class CatRepositoryPrimaryRepo implements CatRepository {
     public boolean writeCats(ArrayList<Cat> cats) {
 
         try (Connection connection = dataSource.getConnection()) {
-            eraseTableStatement(connection).executeQuery();
+            connection.prepareStatement(ERASE_TABLE).executeQuery();
             for (Cat cat : cats) insertCatStatement(connection, cat).executeQuery();
-
         } catch (SQLException e) {
-            throw new RuntimeException("SQL-Verbindung zur MariaDB fehlgeschlagen");
+            throw new RuntimeException("SQL-Connection to MariaDB failed");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return false;
@@ -70,11 +67,10 @@ class CatRepositoryPrimaryRepo implements CatRepository {
 
         try (Connection connection = dataSource.getConnection()) {
             insertCatStatement(connection, cat).executeQuery();
-            ResultSet set = getHighestIdStatement(connection).executeQuery();
+            ResultSet set = connection.prepareStatement(GET_MAX_ID).executeQuery();
             if (set.next()) cat.setId(set.getInt(1));
-
         } catch (SQLException e) {
-            throw new RuntimeException("SQL-Verbindung zur MariaDB fehlgeschlagen");
+            throw new RuntimeException("SQL-Connection to MariaDB failed");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return false;
@@ -87,7 +83,7 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         try (Connection connection = dataSource.getConnection()) {
             deleteCatStatement(connection, cat).executeQuery();
         } catch (SQLException e) {
-            throw new RuntimeException("SQL-Verbindung zur MariaDB fehlgeschlagen");
+            throw new RuntimeException("SQL-Connection to MariaDB failed");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return false;
@@ -100,7 +96,7 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         try (Connection connection = dataSource.getConnection()) {
             editCatStatement(connection, cat).executeQuery();
         } catch (SQLException e) {
-            throw new RuntimeException("SQL-Verbindung zur MariaDB fehlgeschlagen");
+            throw new RuntimeException("SQL-Connection to MariaDB failed");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return false;
@@ -108,25 +104,9 @@ class CatRepositoryPrimaryRepo implements CatRepository {
         return true;
     }
 
-    private PreparedStatement getRowCountStatement(Connection conn) throws SQLException {
-        return conn.prepareStatement(COUNT_CATS);
-    }
-
-    private PreparedStatement getAllCatsStatement(Connection conn) throws SQLException {
-        return conn.prepareStatement(ALL_VALUES);
-    }
-
-    private PreparedStatement eraseTableStatement(Connection conn) throws SQLException {
-        return conn.prepareStatement(ERASE_TABLE);
-    }
-
     private PreparedStatement insertCatStatement(Connection conn, Cat catToSave) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(INSERT_CAT);
         return insertCatValuesInStatement(catToSave, stmt, -1);
-    }
-
-    private PreparedStatement getHighestIdStatement(Connection conn) throws SQLException {
-        return conn.prepareStatement(GET_MAX_ID);
     }
 
     private PreparedStatement deleteCatStatement(Connection conn, Cat cat) throws SQLException {

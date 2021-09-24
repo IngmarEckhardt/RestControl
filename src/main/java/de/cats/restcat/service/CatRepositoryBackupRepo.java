@@ -18,7 +18,7 @@ class CatRepositoryBackupRepo implements CatRepository {
     }
 
     @Override
-    public ArrayList<Cat> readCats() {
+    public ArrayList<Cat> readCats() throws RuntimeException {
         ArrayList<Cat> catArray;
 
         try {
@@ -33,7 +33,7 @@ class CatRepositoryBackupRepo implements CatRepository {
     }
 
     @Override
-    public boolean writeCats(ArrayList<Cat> catList) {
+    public boolean writeCats(ArrayList<Cat> catList) throws RuntimeException {
         try {
             objectMapper.writeValue(datei, catList);
         } catch (IOException e) {

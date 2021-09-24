@@ -124,7 +124,7 @@ public class CatRepositoryBackupRepoTest {
     }
 
     @Test
-    void addCatEditCatDeleteCat_whenNotImplemented_shouldReturnFalse() {
+    void addCat_editCat_deleteCat_whenNotImplemented_shouldReturnFalse() {
         //given
         setupWithMockObjectMapper();
 

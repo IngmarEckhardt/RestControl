@@ -10,7 +10,9 @@ import java.util.ArrayList;
 interface CatRepository {
 
     /**
-     * readCats(): Read Object-Value from the repository and use Cat.newCat(...) to create the Cat-Objects and return them in a ArrayList
+     * readCats(): Read Object-Value from the repository and use Cat.newCat(...)
+     * to create the Cat-Objects and return them in a ArrayList. It should return null or with a Runtime Error if the
+     * database isn't working
      *
      * @Return ArrayList<Cat>
      */
