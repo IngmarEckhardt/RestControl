@@ -3,8 +3,6 @@ package de.cats.restcat.service;
 import de.cats.restcat.CatAppInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
@@ -19,8 +17,8 @@ import static org.mockito.Mockito.*;
 
 @SpringJUnitWebConfig(classes = CatAppInitializer.class)
 class CatRepoServiceImplTest {
-    private static CatRepositoryPrimaryRepo primaryRepo;
-    private static CatRepositoryBackupRepo localBackup;
+    private static CatRepositoryPrimary primaryRepo;
+    private static CatRepositoryBackup localBackup;
     private CatRepoService catRepoService;
     private ArrayList<Cat> catArrayList;
 
@@ -31,8 +29,8 @@ class CatRepoServiceImplTest {
 
     @BeforeEach
     void beforeTestMethod() {
-        primaryRepo = mock(CatRepositoryPrimaryRepo.class);
-        localBackup = mock(CatRepositoryBackupRepo.class);
+        primaryRepo = mock(CatRepositoryPrimary.class);
+        localBackup = mock(CatRepositoryBackup.class);
         catArrayList = null;
     }
 
@@ -83,6 +81,24 @@ class CatRepoServiceImplTest {
 
         //when
         when(primaryRepo.readCats()).thenReturn(null);
+        when(localBackup.readCats()).thenReturn(new ArrayList<>(Arrays.asList(dummyCatWithDate, dummyCatDateNull)));
+        catArrayList = catRepoService.readCats();
+
+        //then
+        assertAll("It should try to read from both Repositories and load Cats from the Backup-Repo if primary wont work" +
+                        "first Cat of the BackupList has name 'Dummy'",
+                () -> assertThat(catArrayList.get(0), isA(Cat.class)),
+                () -> assertEquals(dummyCatWithDate.getName(), catArrayList.get(0).getName()),
+                () -> verify(primaryRepo, times(1)).readCats(),
+                () -> verify(localBackup, times(1)).readCats());
+    }
+    @Test
+    void readCats_withPrimaryThrowingRuntimeException_shouldReadCatsFromBackUpRepository() {
+        //given
+        catRepoService = new CatRepoServiceImpl(primaryRepo, localBackup);
+
+        //when
+        when(primaryRepo.readCats()).thenThrow(RuntimeException.class);
         when(localBackup.readCats()).thenReturn(new ArrayList<>(Arrays.asList(dummyCatWithDate, dummyCatDateNull)));
         catArrayList = catRepoService.readCats();
 

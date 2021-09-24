@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringJUnitWebConfig(classes = CatAppInitializer.class)
-class CatRepositoryPrimaryRepoTest {
+class CatRepositoryPrimaryTest {
 
     private static final String
             ALL_VALUES = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
@@ -28,7 +28,7 @@ class CatRepositoryPrimaryRepoTest {
             GET_MAX_ID = "select MAX(ID) from Cats",
             GET_CAT = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats where ID = ?";
 
-    private CatRepositoryPrimaryRepo mariaDB;
+    private CatRepositoryPrimary mariaDB;
     private InitialContext initContext;
     private DataSource dataSource;
     private Connection connection;
@@ -329,14 +329,14 @@ class CatRepositoryPrimaryRepoTest {
 
     private void setUpWithMockDB() {
         dataSource = mock(DataSource.class);
-        mariaDB = new CatRepositoryPrimaryRepo(dataSource);
+        mariaDB = new CatRepositoryPrimary(dataSource);
     }
 
     private void setUpWithTestDB() throws NamingException {
         this.initContext.bind("java:comp/env/jdbc/datasource",
                 new DriverManagerDataSource("jdbc:mariadb://localhost:3306/CatControlTest", "max1", "password"));
         dataSource = (DataSource) this.initContext.lookup("java:comp/env/jdbc/datasource");
-        mariaDB = new CatRepositoryPrimaryRepo(dataSource);
+        mariaDB = new CatRepositoryPrimary(dataSource);
     }
 
     private void addCatToTestDatabase(Connection connection, Cat newCat) throws SQLException {

@@ -6,13 +6,13 @@ import java.util.concurrent.TimeUnit;
 
 class CatRepoServiceImpl implements CatRepoService {
 
-    private final CatRepositoryBackupRepo backupRepo;
-    private final CatRepositoryPrimaryRepo primaryRepo;
+    private final CatRepositoryBackup backupRepo;
+    private final CatRepositoryPrimary primaryRepo;
     private final ForkJoinPool repoServiceThreadPool;
     private ArrayList<Cat> catCache;
 
 
-    CatRepoServiceImpl(CatRepositoryPrimaryRepo primaryRepo, CatRepositoryBackupRepo backupRepo) {
+    CatRepoServiceImpl(CatRepositoryPrimary primaryRepo, CatRepositoryBackup backupRepo) {
         this.backupRepo = backupRepo;
         this.primaryRepo = primaryRepo;
         this.repoServiceThreadPool = new ForkJoinPool(4);
@@ -23,7 +23,12 @@ class CatRepoServiceImpl implements CatRepoService {
         ArrayList<Cat> catArray = null;
         this.catCache = new ArrayList<>();
         repoServiceThreadPool.execute(() -> catCache = backupRepo.readCats());
-        catArray = primaryRepo.readCats();
+        try {
+            catArray = primaryRepo.readCats();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
 
 
         boolean backUpAvailable = repoServiceThreadPool.awaitQuiescence(5_000, TimeUnit.MILLISECONDS);

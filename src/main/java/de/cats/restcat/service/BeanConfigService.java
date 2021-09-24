@@ -51,13 +51,13 @@ public class BeanConfigService {
     }
 
     @Bean
-    public CatRepositoryBackupRepo backupRepo() {
-        return new CatRepositoryBackupRepo(objectMapper());
+    public CatRepositoryBackup backupRepo() {
+        return new CatRepositoryBackup(objectMapper());
     }
 
     @Bean
-    public CatRepositoryPrimaryRepo primaryRepo() {
-         return new CatRepositoryPrimaryRepo(dataSource());
+    public CatRepositoryPrimary primaryRepo() {
+         return new CatRepositoryPrimary(dataSource());
     }
 
     @Bean

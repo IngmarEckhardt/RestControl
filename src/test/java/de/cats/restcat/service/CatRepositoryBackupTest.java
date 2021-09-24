@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 @SpringJUnitWebConfig(classes = CatAppInitializer.class)
 @ExtendWith(MockitoExtension.class)
-public class CatRepositoryBackupRepoTest {
+public class CatRepositoryBackupTest {
 
     private ObjectMapper objectMapper;
     private CatRepository catsRepository;
@@ -47,7 +47,7 @@ public class CatRepositoryBackupRepoTest {
         //given
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        catsRepository = new CatRepositoryBackupRepo(objectMapper);
+        catsRepository = new CatRepositoryBackup(objectMapper);
 
         //when
         ArrayList<Cat> results = catsRepository.readCats();
@@ -141,6 +141,6 @@ public class CatRepositoryBackupRepoTest {
 
     private void setupWithMockObjectMapper() {
         objectMapper = mock(ObjectMapper.class);
-        catsRepository = new CatRepositoryBackupRepo(objectMapper);
+        catsRepository = new CatRepositoryBackup(objectMapper);
     }
 }

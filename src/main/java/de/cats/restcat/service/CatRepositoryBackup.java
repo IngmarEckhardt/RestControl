@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class CatRepositoryBackupRepo implements CatRepository {
+class CatRepositoryBackup implements CatRepository {
     private final ObjectMapper objectMapper;
     private final File datei;
 
 
-    public CatRepositoryBackupRepo(ObjectMapper objectMapper) {
+    public CatRepositoryBackup(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         ClassLoader classLoader = getClass().getClassLoader();
         datei = new File(classLoader.getResource("Cats.json").getFile());

@@ -5,7 +5,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-class CatRepositoryPrimaryRepo implements CatRepository {
+class CatRepositoryPrimary implements CatRepository {
     private static final String
             ALL_CATS = "select ID, NAME, AGE, VACCINEDATE, WEIGHT, CHUBBY, SWEET from Cats",
             ERASE_TABLE = "TRUNCATE TABLE Cats",
@@ -18,7 +18,7 @@ class CatRepositoryPrimaryRepo implements CatRepository {
     private final ArrayList<Cat> catArray;
     private final DataSource dataSource;
 
-    CatRepositoryPrimaryRepo(DataSource dataSource) {
+    CatRepositoryPrimary(DataSource dataSource) {
         this.dataSource = dataSource;
         this.catArray = new ArrayList<>();
     }

@@ -15,15 +15,25 @@ public class CatServiceImpl implements CatService {
     }
 
     @Override
+    public ArrayList<Cat> getCatlist() {
+        catArray = catRepoService.readCats();
+        return catArray;
+    }
+
+    @Override
     public Cat getCat(Integer id) {
-        return filterCatOutOfArrayWithID(id).get(0);
+        Cat filterCat;
+        try {
+            filterCat = filterCatOutOfArrayWithID(id).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+        return filterCat;
     }
 
     @Override
     public ArrayList<Cat> saveCat(Cat cat) {
-        if (cat == null) {
-            return null;
-        }
+        if (cat == null) return null;
         else if (cat.getId() == null) {
             catRepoService.addNewCat(cat);
             catArray.add(cat);
@@ -41,6 +51,7 @@ public class CatServiceImpl implements CatService {
 
     @Override
     public ArrayList<Cat> deleteCat(Cat cat) {
+        if (cat == null) return null;
         catRepoService.deleteCat(cat);
         filteredList = filterCatOutOfArray(cat);
         catArray.clear();
@@ -50,7 +61,13 @@ public class CatServiceImpl implements CatService {
 
     @Override
     public ArrayList<Cat> deleteCatWithID(Integer id) {
-        Cat cat = filterCatOutOfArrayWithID(id).get(0);
+        Cat cat = null;
+        try {
+            cat = filterCatOutOfArrayWithID(id).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+
         return deleteCat(cat);
     }
 
@@ -65,12 +82,6 @@ public class CatServiceImpl implements CatService {
         }
         catList.sort(new SortName());
         return catList;
-    }
-
-    @Override
-    public ArrayList<Cat> getCatlist() {
-        catArray = catRepoService.readCats();
-        return catArray;
     }
 
     @Override

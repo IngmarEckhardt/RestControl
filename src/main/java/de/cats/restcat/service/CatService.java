@@ -21,6 +21,10 @@ public interface CatService {
      */
     ArrayList<Cat> getCatlist();
 
+    /** getCat() should filter the database and return the Cat.class-Objekt
+     * @param id - The id of the Cat that should be returned
+     * @return a Cat.class-Object
+     * */
     @Cacheable
     Cat getCat(Integer id);
 
