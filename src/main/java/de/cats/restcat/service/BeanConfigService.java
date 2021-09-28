@@ -13,13 +13,12 @@ import javax.sql.DataSource;
 @Configuration
 public class BeanConfigService {
     private Context envContext;
+    private Context initContext;
 
     @PostConstruct
     public void init() throws NamingException {
         System.out.println("BeanConfigService: init() Context");
-        Context initContext;
-        try {
-            initContext = new InitialContext();
+        try {if (initContext == null) initContext = new InitialContext();
             envContext = (Context) initContext.lookup("java:/comp/env");
         } catch (NamingException e) {
             throw new NamingException("Context not found");
@@ -68,5 +67,9 @@ public class BeanConfigService {
     @Bean
     public CatService catService() {
         return new CatServiceImpl(catRepoService());
+    }
+
+    void setInitContext(Context initContext) {
+        this.initContext = initContext;
     }
 }
